@@ -28,3 +28,23 @@ def binarySearch(dictionary, target):
     else:
       low = mid +1
   return False
+
+def main()
+  dictionaryName = input("Enter the name of the dictionary file -->")
+  textName = input("Enter a file to check spelling -->")
+
+  dictionary = openDictionary(dictFile)
+  file = open(text_file, "r")
+
+  for line in file:
+    words = line.split()
+
+    for word in words:
+      word = word.lower()
+
+      if not binarySearch(dictionary, word):
+        print(word)
+
+  file.close()
+
+main()
