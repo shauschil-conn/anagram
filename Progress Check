@@ -8,7 +8,7 @@ def openDictionary(filename):
     for line in file:
       word = line.strip().lower()
       if word != "":
-      words.append(word)
+        words.append(word)
   return words
 
 def binarySearch(dictionary, target):
