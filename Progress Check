@@ -29,7 +29,7 @@ def binarySearch(dictionary, target):
       low = mid +1
   return False
 
-def main()
+def main():
   dictionaryName = input("Enter the name of the dictionary file -->")
   textName = input("Enter a file to check spelling -->")
 
