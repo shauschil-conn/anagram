@@ -1,1 +1,30 @@
+#spell check for binary search
 
+#program should read the dictionary file and check the text file for misspelt words
+
+def openDictionary(filename):
+  words = []
+  with open(filename, "r") as file:
+    for line in file:
+      word = line.strip().lower()
+    if word != "":
+      words.append(word)
+  return words
+
+def binarySearch(dictionary, target):
+  lo = 0
+  hi = len(dictionary)-1
+
+  while lo <= hi:
+    mid = lo+hi//2
+    midWord = dictionary[mid]
+
+    if midWord == target:
+      return True
+
+    elif target < mid_word:
+      hi = mid -1 
+
+    else:
+      low = mid +1
+  return False
