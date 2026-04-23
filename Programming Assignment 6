@@ -1,9 +1,20 @@
-def anagrams(s):
-    if s == "":
-        return [s]
-    else:
+class Anagram:
+    """This is a revamped version of the anagram function from the book.
+    This can hald all possible anagrams for a given string."""
+    def __init__(self, text):
+        self.text = text
+
+    def get_anagrams(self):
+        raw_anagrams = self._generate(self.text)
+        return list(set(raw_anagrams))
+
+    def _generate(self, s):
+        if s == "":
+            return [s]
+        
         ans = []
-        for w in anagrams(s[1:]):
-            for pos in range(len(w)+1):
-                ans. append(w[:pos]+s[0]+w[pos:])
-        return ans 
+        for w in self._generate(s[1:]):
+            for pos in range(len(w) + 1):
+                ans.append(w[:pos] + s[0] + w[pos:])
+        return ans
+
