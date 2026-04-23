@@ -35,7 +35,7 @@ class WordDictionary:
         # Call the recursive binary search method
         return self._binary_search(self.words, 0, len(self.words) - 1, word) != -1
 
-    def _binary_search(self, vals, lo, hi, t):
+    def binarySearch(self, vals, lo, hi, t):
         if lo > hi:
             return -1        
         mid = (lo + hi) // 2
