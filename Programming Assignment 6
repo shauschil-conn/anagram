@@ -18,3 +18,31 @@ class Anagram:
                 ans.append(w[:pos] + s[0] + w[pos:])
         return ans
 
+class WordDictionary:
+    """Adding words to the dictionary file, and looking for valid words."""
+    def __init__(self, filename):
+        self.words = []
+        self.load_dictionary(filename)
+
+    def load_dictionary(self, filename):
+        with open(filename, 'r') as file:
+            # Read words, strip whitespace, convert to lowercase
+            self.words = [line.strip().lower() for line in file]
+            # Ensure words are sorted for binary search to work properly
+            self.words.sort()
+
+    def is_valid_word(self, word):
+        # Call the recursive binary search method
+        return self._binary_search(self.words, 0, len(self.words) - 1, word) != -1
+
+    def _binary_search(self, vals, lo, hi, t):
+        if lo > hi:
+            return -1        
+        mid = (lo + hi) // 2
+        
+        if vals[mid] == t:
+            return mid
+        elif vals[mid] < t:
+            return self._binary_search(vals, mid + 1, hi, t)
+        else:
+            return self._binary_search(vals, lo, mid - 1, t)
