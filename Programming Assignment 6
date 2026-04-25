@@ -1,39 +1,40 @@
+from graphics import *
+
 class Anagram:
-    """This is a revamped version of the anagram function from the book.
-    This can hald all possible anagrams for a given string."""
     def __init__(self, text):
         self.text = text
 
     def get_anagrams(self):
-        raw_anagrams = self._generate(self.text)
-        return list(set(raw_anagrams))
+        # Generate all combinations, including duplicates
+        all_perms = self.generateS(self.text)
+        
+        # Manually filter out duplicates without using set()
+        unique_perms = []
+        for word in all_perms:
+            if word not in unique_perms:
+                unique_perms.append(word)
+                
+        return unique_perms
 
-    def _generate(self, s):
+    def generateS(self, s):
         if s == "":
             return [s]
         
         ans = []
-        for w in self._generate(s[1:]):
+        for w in self.generateS(s[1:]):
             for pos in range(len(w) + 1):
                 ans.append(w[:pos] + s[0] + w[pos:])
         return ans
 
 class WordDictionary:
-    """Adding words to the dictionary file, and looking for valid words."""
     def __init__(self, filename):
-        self.words = []
-        self.load_dictionary(filename)
+        file = open(filename, 'r')
+        self.words = [line.strip().lower() for line in file]
+        self.words.sort()
+        file.close()
 
-    def load_dictionary(self, filename):
-        with open(filename, 'r') as file:
-            # Read words, strip whitespace, convert to lowercase
-            self.words = [line.strip().lower() for line in file]
-            # Ensure words are sorted for binary search to work properly
-            self.words.sort()
-
-    def is_valid_word(self, word):
-        # Call the recursive binary search method
-        return self._binary_search(self.words, 0, len(self.words) - 1, word) != -1
+    def is_valid(self, word):
+        return self.binarySearch(self.words, 0, len(self.words) - 1, word) != -1
 
     def binarySearch(self, vals, lo, hi, t):
         if lo > hi:
@@ -43,6 +44,71 @@ class WordDictionary:
         if vals[mid] == t:
             return mid
         elif vals[mid] < t:
-            return self._binary_search(vals, mid + 1, hi, t)
+            return self.binarySearch(vals, mid + 1, hi, t)
         else:
-            return self._binary_search(vals, lo, mid - 1, t)
+            return self.binarySearch(vals, lo, mid - 1, t)
+
+class JumbleApp:
+    def __init__(self):
+        self.win = GraphWin("Word Jumble", 600, 500)
+        self.win.setBackground("lightgray")
+        self.dictionary = WordDictionary("2of12.txt")
+
+    def splash(self):
+        title = Text(Point(300, 200), "Word Jumble Solver")
+        title.setSize(24)
+        title.draw(self.win)
+
+        sub = Text(Point(300, 250), "Click anywhere to start!")
+        sub.draw(self.win)
+
+        self.win.getMouse()
+        title.undraw()
+        sub.undraw()
+
+    def run(self):
+        Text(Point(300, 50), "Enter a jumbled word (2 to 7 letters):").draw(self.win)
+        
+        self.entry = Entry(Point(300, 100), 15)
+        self.entry.draw(self.win)
+
+        btn = Rectangle(Point(250, 140), Point(350, 180))
+        btn.setFill("lightblue")
+        btn.draw(self.win)
+        Text(Point(300, 160), "Solve").draw(self.win)
+
+        quit_btn = Rectangle(Point(500, 450), Point(580, 480))
+        quit_btn.setFill("salmon")
+        quit_btn.draw(self.win)
+        Text(Point(540, 465), "Quit").draw(self.win)
+
+        self.msg = Text(Point(300, 220), "")
+        self.msg.draw(self.win)
+
+        self.results = Text(Point(300, 350), "")
+        self.results.draw(self.win)
+
+        running = True
+        while running:
+            click = self.win.getMouse()
+            
+            if self.clicked(click, quit_btn):
+                running = False
+            elif self.clicked(click, btn):
+                self.solve()
+
+        self.win.close()
+
+    def solve(self):
+        self.msg.setText("")
+        self.results.setText("")
+        word = self.entry.getText().strip().lower()
+
+        if not word.isalpha():
+            self.msg.setText("Letters only please!")
+        elif len(word) < 2 or len(word) > 7:
+            self.msg.setText("Keep it between 2 and 7 letters to avoid freezing.")
+        else:
+            self.msg.setText("Solving...")
+            
+        
