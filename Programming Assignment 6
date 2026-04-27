@@ -55,60 +55,185 @@ class JumbleApp:
         self.dictionary = WordDictionary("2of12.txt")
 
     def splash(self):
-        title = Text(Point(300, 200), "Word Jumble Solver")
+        title = Text(Point(300, 160), "Word Jumble Solver")
         title.setSize(24)
+        title.setStyle("bold")
         title.draw(self.win)
 
-        sub = Text(Point(300, 250), "Click anywhere to start!")
+        sub = Text(Point(300, 215), "Unscramble letters to find real words")
+        sub.setSize(14)
         sub.draw(self.win)
 
+        instructions = Text(Point(300, 265), "Click anywhere to start!")
+        instructions.setSize(13)
+        instructions.draw(self.win)
+
+        box = Rectangle(Point(100, 110), Point(500, 310))
+        box.setOutline("dark blue")
+        box.setWidth(3)
+        box.draw(self.win)
+
         self.win.getMouse()
+
         title.undraw()
         sub.undraw()
+        instructions.undraw()
+        box.undraw()
 
     def run(self):
-        Text(Point(300, 50), "Enter a jumbled word (2 to 7 letters):").draw(self.win)
-        
-        self.entry = Entry(Point(300, 100), 15)
+        title = Text(Point(300, 35), "Word Jumble Solver")
+        title.setSize(22)
+        title.setStyle("bold")
+        title.draw(self.win)
+
+        directions = Text(Point(300, 70), "Enter a jumbled word using 2 to 7 letters.")
+        directions.setSize(12)
+        directions.draw(self.win)
+
+        hint = Text(Point(300, 95), "Example: enter 'tca' to find 'cat' and 'act'")
+        hint.setSize(10)
+        hint.draw(self.win)
+
+        label = Text(Point(190, 135), "Jumbled word:")
+        label.setSize(12)
+        label.draw(self.win)
+
+        self.entry = Entry(Point(340, 135), 18)
+        self.entry.setText("")
         self.entry.draw(self.win)
 
-        btn = Rectangle(Point(250, 140), Point(350, 180))
+        btn = Rectangle(Point(225, 170), Point(375, 210))
         btn.setFill("lightblue")
+        btn.setOutline("navy")
+        btn.setWidth(2)
         btn.draw(self.win)
-        Text(Point(300, 160), "Solve").draw(self.win)
 
-        quit_btn = Rectangle(Point(500, 450), Point(580, 480))
-        quit_btn.setFill("salmon")
-        quit_btn.draw(self.win)
-        Text(Point(540, 465), "Quit").draw(self.win)
+        btnText = Text(Point(300, 190), "Solve")
+        btnText.setSize(13)
+        btnText.setStyle("bold")
+        btnText.draw(self.win)
 
-        self.msg = Text(Point(300, 220), "")
+        clear_btn = Rectangle(Point(225, 225), Point(375, 265))
+        clear_btn.setFill("white")
+        clear_btn.setOutline("navy")
+        clear_btn.setWidth(2)
+        clear_btn.draw(self.win)
+
+        clearText = Text(Point(300, 245), "Clear")
+        clearText.setSize(13)
+        clearText.draw(self.win)
+
+        self.msg = Text(Point(300, 295), "")
+        self.msg.setSize(12)
         self.msg.draw(self.win)
 
-        self.results = Text(Point(300, 350), "")
+        resultsLabel = Text(Point(300, 325), "Results:")
+        resultsLabel.setSize(14)
+        resultsLabel.setStyle("bold")
+        resultsLabel.draw(self.win)
+
+        resultsBox = Rectangle(Point(100, 345), Point(500, 455))
+        resultsBox.setFill("white")
+        resultsBox.setOutline("gray")
+        resultsBox.draw(self.win)
+
+        self.results = Text(Point(300, 400), "")
+        self.results.setSize(11)
         self.results.draw(self.win)
+
+        quit_btn = Rectangle(Point(505, 460), Point(585, 490))
+        quit_btn.setFill("salmon")
+        quit_btn.setOutline("darkred")
+        quit_btn.setWidth(2)
+        quit_btn.draw(self.win)
+
+        quitText = Text(Point(545, 475), "Quit")
+        quitText.setSize(12)
+        quitText.setStyle("bold")
+        quitText.draw(self.win)
 
         running = True
         while running:
             click = self.win.getMouse()
-            
+
             if self.clicked(click, quit_btn):
                 running = False
             elif self.clicked(click, btn):
                 self.solve()
+            elif self.clicked(click, clear_btn):
+                self.entry.setText("")
+                self.msg.setText("")
+                self.results.setText("")
 
         self.win.close()
-
+        
     def solve(self):
+        # Clear previous messages and results
         self.msg.setText("")
         self.results.setText("")
+
+        # Get user input and clean it (remove spaces, make lowercase)
         word = self.entry.getText().strip().lower()
 
-        if not word.isalpha():
+        # Input validation checks
+        if word == "":
+            self.msg.setText("Please enter a word.")
+        elif not word.isalpha():
             self.msg.setText("Letters only please!")
         elif len(word) < 2 or len(word) > 7:
-            self.msg.setText("Keep it between 2 and 7 letters to avoid freezing.")
+            self.msg.setText("Keep it between 2 and 7 letters.")
         else:
+            # Let user know the program is working
             self.msg.setText("Solving...")
+
+            # Create an Anagram object to generate all permutations
+            anagramGenerator = Anagram(word)
+
+            # Get all possible anagrams
+            allAnagrams = anagramGenerator.get_anagrams()
+
+            # List to store only valid words
+            realWords = []
+
+            # Check each generated anagram against the dictionary
+            for item in allAnagrams:
+                if self.dictionary.is_valid(item):
+                    # Avoid duplicates
+                    if item not in realWords:
+                        realWords.append(item)
+
+            # If no valid words found
+            if len(realWords) == 0:
+                self.msg.setText("No real words found.")
+                self.results.setText("")
+            else:
+                # Display number of valid words found
+                self.msg.setText("Found " + str(len(realWords)) + " word(s):")
+
+                # Build output string with all results
+                output = ""
+                for item in realWords:
+                    output = output + item + "\n"
+
+                # Display results in the window
+                self.results.setText(output)
+                
+    def clicked(self, point, rect):
+        p1 = rect.getP1()
+        p2 = rect.getP2()
+
+        # check if click is inside the rectangle
+        if point.getX() >= p1.getX() and point.getX() <= p2.getX():
+            if point.getY() >= p1.getY() and point.getY() <= p2.getY():
+                return True
+
+        return False
+
+def main():
+    app = JumbleApp()
+    app.splash()        
+    app.run()          
+
+main()
             
         
